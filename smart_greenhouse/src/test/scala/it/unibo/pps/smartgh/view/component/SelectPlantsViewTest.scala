@@ -39,7 +39,7 @@ class SelectPlantsViewTest:
 
   @Start
   private def start(stage: Stage): Unit =
-    val scene: Scene = Scene(stage.getMaxWidth, stage.getMaxHeight)
+    val scene: Scene = Scene(stage.getWidth, stage.getHeight)
     val baseView: ViewComponent[VBox] = BaseView("title", "subtitle")
 
     stage.setResizable(true)
