@@ -15,6 +15,7 @@ import org.testfx.assertions.api.Assertions as FXAssertions
 import org.testfx.framework.junit5.{ApplicationExtension, ApplicationTest, Start}
 import org.testfx.api.FxAssert.verifyThat
 import org.testfx.matcher.base.NodeMatchers.isVisible
+import org.testfx.matcher.control.LabeledMatchers
 import org.testfx.matcher.control.LabeledMatchers.hasText
 import scalafx.scene.Scene
 
@@ -41,7 +42,9 @@ class SelectPlantsViewTest:
     val plantsSelectedText = "Plants selected:"
     val countText = "Count:"
 
-    FXAssertions.assertThat(robot.lookup(selectYourPlantsText).queryAs(classOf[Label])).isVisible
+    verifyThat(selectYourPlantsText, isVisible)
+
+//    FXAssertions.assertThat(robot.lookup(selectYourPlantsText).queryAs(classOf[Label])).isVisible
 
 //    verifyThat(selectYourPlantLabelId, isVisible())
 //    verifyThat(selectYourPlantLabelId, hasText(selectYourPlantsText))
