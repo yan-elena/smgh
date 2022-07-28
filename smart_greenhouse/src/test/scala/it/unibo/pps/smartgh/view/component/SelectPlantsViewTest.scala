@@ -53,13 +53,9 @@ class SelectPlantsViewTest:
     val plantsSelectedText = "Plants selected:"
     val countText = "Count:"
 
-    verifyThat(selectYourPlantsText, isVisible)
-
-//    FXAssertions.assertThat(robot.lookup(selectYourPlantsText).queryAs(classOf[Label])).isVisible
-
-//    verifyThat(selectYourPlantLabelId, isVisible())
-//    verifyThat(selectYourPlantLabelId, hasText(selectYourPlantsText))
-//    verifyThat(plantSelectedLabelId, isVisible())
-//    verifyThat(plantSelectedLabelId, hasText(plantsSelectedText))
-//    verifyThat(countLabelId, isVisible())
-//    verifyThat(countLabelId, hasText(countText))
+    verifyThat(selectYourPlantLabelId, isVisible)
+    verifyThat(selectYourPlantLabelId, hasText(selectYourPlantsText))
+    verifyThat(plantSelectedLabelId, isVisible)
+    verifyThat(plantSelectedLabelId, hasText(plantsSelectedText))
+    verifyThat(countLabelId, isVisible)
+    verifyThat(countLabelId, hasText(countText))
