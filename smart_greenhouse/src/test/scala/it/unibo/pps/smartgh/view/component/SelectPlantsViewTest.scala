@@ -19,12 +19,23 @@ import org.testfx.matcher.control.LabeledMatchers
 import org.testfx.matcher.control.LabeledMatchers.hasText
 import scalafx.scene.Scene
 
+@TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(Array(classOf[ApplicationExtension]))
 class SelectPlantsViewTest:
 
   val selectYourPlantLabelId = "#selectYourPlantLabel"
   val plantSelectedLabelId = "#plantsSelectedLabel"
   val countLabelId = "#countLabel"
+
+  @BeforeAll
+  def setup(): Unit =
+    System.setProperty("testfx.robot", "glass")
+    System.setProperty("testfx.headless", "true")
+    System.setProperty("java.awt.headless", "true")
+    System.setProperty("prism.order", "sw")
+    System.setProperty("prism.text", "t2k")
+    WaitForAsyncUtils.checkAllExceptions = false;
+    WaitForAsyncUtils.autoCheckException = false;
 
   @Start
   private def start(stage: Stage): Unit =
