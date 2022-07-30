@@ -54,7 +54,11 @@ object Timer:
   val timer = Timer(1.day)
   timer.start(s =>
     println(
-      "%d:%02d:%02d".formatted(s.toSeconds / 3600L, (s.toSeconds % 3600L) / 60L, s.toSeconds % 60L)
+      "%d:%02d:%02d".formatted(
+        (s.toSeconds / 3600L).toString,
+        ((s.toSeconds % 3600L) / 60L).toString,
+        (s.toSeconds % 60L).toString
+      )
     )
   )
   Thread.sleep(5000)
