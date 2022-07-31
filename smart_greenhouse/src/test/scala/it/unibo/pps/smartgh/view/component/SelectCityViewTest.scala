@@ -3,18 +3,19 @@ package it.unibo.pps.smartgh.view.component
 import javafx.scene.control.TextField
 import javafx.scene.layout.{Pane, VBox}
 import javafx.stage.Stage
+import org.junit.jupiter.api.{BeforeAll, Test, TestInstance}
+import org.junit.jupiter.api.extension.ExtendWith
+import org.testfx.framework.junit5.{ApplicationExtension, Start}
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.TestInstance.Lifecycle
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.{BeforeAll, Test, TestInstance}
 import org.testfx.api.FxAssert.verifyThat
 import org.testfx.api.FxRobot
-import org.testfx.framework.junit5.{ApplicationExtension, Start}
 import org.testfx.matcher.base.NodeMatchers.{isEnabled, isFocused, isVisible}
 import org.testfx.matcher.control.{LabeledMatchers, TextInputControlMatchers}
 import org.testfx.util.WaitForAsyncUtils
 import scalafx.scene.Scene
 
+/** This class contains the tests to verify that the [[SelectCityView]] work correctly. */
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(Array(classOf[ApplicationExtension]))
 class SelectCityViewTest:
