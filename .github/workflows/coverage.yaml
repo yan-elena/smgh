@@ -19,4 +19,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: jacoco-report
-        path: target/scala-3.0.2/jacoco/report/
+        path: target/jacoco/report/ 
