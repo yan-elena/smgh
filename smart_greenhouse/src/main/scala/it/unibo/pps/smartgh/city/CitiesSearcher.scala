@@ -18,9 +18,17 @@ trait CitiesSearcher:
     * @param charSequence
     *   a sequence of characters that the name of the city begins with
     * @return
-    *   a list of city names
+    *   a sequence of city names
     */
   def searchCities(charSequence: Seq[Char]): Seq[String]
+
+  /** Check whether all cities contain a given city.
+    * @param city
+    *   the city to test
+    * @return
+    *   true if this sequence has the given city, false otherwise
+    */
+  def containCity(city: String): Boolean
 
 /** Object that can used to create a new instances of [[CitiesSearcher]]. */
 object CitiesSearcher:
@@ -35,39 +43,16 @@ object CitiesSearcher:
   def apply(fileName: String): CitiesSearcher = CitiesSearcherImpl(fileName)
 
   private class CitiesSearcherImpl(fileName: String) extends CitiesSearcher:
-    private val prologFile = Using(Source.fromFile(fileName)) {
-      _.mkString
-    }.get
-    private val engine = prologEngine(
-      Theory.parseLazilyWithStandardOperators(prologFile)
-    )
+    import it.unibo.pps.smartgh.prolog.Scala2P.{*, given}
+    private val prologFile = Using(Source.fromFile(fileName))(_.mkString).get
+    private val engine = prologEngine(Theory.parseLazilyWithStandardOperators(prologFile))
+    private val cities = engine("citta(X)").map(extractTermToString(_, "X").replace("'", "")).toSeq
 
-    private def extractTerm(t: Term, i: Int): Term =
-      t.asInstanceOf[Struct].getArg(i).getTerm
-
-    private def extractTermToString(solveInfo: SolveInfo, s: String): String =
-      solveInfo.getTerm(s).toString.replace("'", "")
-
-    private def prologEngine(theory: Theory): Term => Iterable[SolveInfo] =
-      val engine = Prolog()
-      engine.setTheory(theory)
-
-      goal =>
-        new Iterable[SolveInfo]:
-          override def iterator: Iterator[SolveInfo] = new Iterator[SolveInfo]:
-            var solution: Option[SolveInfo] = Some(engine.solve(goal))
-
-            override def hasNext: Boolean =
-              solution.fold(false)(f => f.hasOpenAlternatives || f.isSuccess)
-
-            override def next(): SolveInfo =
-              try solution.get
-              finally solution = if (solution.get.hasOpenAlternatives) Some(engine.solveNext()) else None
-
-    override def getAllCities: Seq[String] =
-      engine("citta(X)").map(extractTermToString(_, "X")).toSeq
+    override def getAllCities: Seq[String] = cities
 
     override def searchCities(charSequence: Seq[Char]): Seq[String] =
       engine("ricerca_citta(" + charSequence.mkString("['", "','", "'|_]") + ", X)")
-        .map(extractTermToString(_, "X"))
+        .map(extractTermToString(_, "X").replace("'", ""))
         .toSeq
+
+    override def containCity(city: String): Boolean = cities.contains(city)
