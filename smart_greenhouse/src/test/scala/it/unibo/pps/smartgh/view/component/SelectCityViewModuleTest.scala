@@ -29,6 +29,11 @@ class SelectCityViewModuleTest extends AbstractViewTest:
   private val nextButtonId = "#changeSceneButton"
   private val errorLabel = "#errorLabel"
 
+  private def writeCityAndTestField(robot: FxRobot, city: String) =
+    robot.clickOn(textFieldId)
+    robot.write(city)
+    verifyThat(textFieldId, TextInputControlMatchers.hasText(city))
+
   @Start
   private def start(stage: Stage): Unit =
     val baseView: BaseView = BaseView(appTitle, appSubtitle)
@@ -43,8 +48,7 @@ class SelectCityViewModuleTest extends AbstractViewTest:
   @Test
   def testAutoCompletionPopup(robot: FxRobot): Unit =
     val char = "A"
-    robot.clickOn(textFieldId)
-    robot.write(char)
+    writeCityAndTestField(robot, char)
     verifyThat(textFieldId, TextInputControlMatchers.hasText(char))
     selectCityView.autoCompletionBinding.getAutoCompletionPopup.getSuggestions.forEach(city =>
       assertTrue(city.startsWith(char))
@@ -61,8 +65,15 @@ class SelectCityViewModuleTest extends AbstractViewTest:
   def testWrongCityError(robot: FxRobot): Unit =
     val wrongCity = "Wrong city"
     verifyThat(textFieldId, TextInputControlMatchers.hasText(""))
-    robot.clickOn(textFieldId)
-    robot.write(wrongCity)
+    writeCityAndTestField(robot, wrongCity)
     robot.clickOn(nextButtonId)
     verifyThat(errorLabel, isVisible)
     verifyThat(errorLabel, LabeledMatchers.hasText("The selected city is not valid"))
+
+  @Test
+  def testSelectCity(robot: FxRobot): Unit =
+    val city = "Cesena"
+    verifyThat(textFieldId, TextInputControlMatchers.hasText(""))
+    writeCityAndTestField(robot, city)
+    robot.clickOn(nextButtonId)
+    verifyThat(errorLabel, LabeledMatchers.hasText(""))
