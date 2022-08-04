@@ -6,7 +6,7 @@ import org.scalatest.matchers.should.Matchers as ShouldMatchers
 import org.scalatest.matchers.must.Matchers as MustMatchers
 
 /** This class contains the tests to verify that the [[CitiesSearcher]] work correctly. */
-class CitiesSearcherTest extends AnyFunSuite with CitySearcherModelModule.Interface:
+class CitySearcherModelModuleTest extends AnyFunSuite with CitySearcherModelModule.Interface:
 
   private val path = System.getProperty("user.home") + "/pps/"
   private val file = "cities.txt"
