@@ -1,7 +1,10 @@
 package it.unibo.pps.smartgh.view.component
 
+import it.unibo.pps.smartgh.mvc.MVCCitySearcher
+import it.unibo.pps.smartgh.view.SimulationView
+import it.unibo.pps.smartgh.view.component.CitySearcherViewModule.CitySearcherView
 import javafx.scene.control.TextField
-import javafx.scene.layout.{Pane, VBox}
+import javafx.scene.layout.{BorderPane, VBox}
 import javafx.stage.Stage
 import org.junit.jupiter.api.{BeforeAll, Test, TestInstance}
 import org.junit.jupiter.api.extension.ExtendWith
@@ -18,46 +21,31 @@ import scalafx.scene.Scene
 /** This class contains the tests to verify that the [[SelectCityView]] work correctly. */
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(Array(classOf[ApplicationExtension]))
-class SelectCityViewTest:
+class SelectCityViewTest extends AbstractViewTest:
 
-  private var selectCityView: SelectCityView = _
+  private var citySearcherView: CitySearcherView = _
   private val textFieldId = "#selectCityTextField"
-  private val nextButtonId = "#nextButton" //todo: cambiare l'id giusto quando mettiamo in comune il bottone
+  private val nextButtonId = "#changeSceneButton"
   private val errorLabel = "#errorLabel"
-
-  @BeforeAll
-  def setup(): Unit =
-    System.setProperty("testfx.robot", "glass")
-    System.setProperty("testfx.headless", "true")
-    System.setProperty("java.awt.headless", "true")
-    System.setProperty("prism.order", "sw")
-    System.setProperty("prism.text", "t2k")
-    WaitForAsyncUtils.checkAllExceptions = false;
-    WaitForAsyncUtils.autoCheckException = false;
 
   @Start
   private def start(stage: Stage): Unit =
-    val scene: Scene = Scene(stage.getWidth, stage.getHeight)
-    val baseView: ViewComponent[VBox] = BaseView("title", "subtitle")
-    selectCityView = SelectCityView()
-    stage.setResizable(true)
-    baseView.getChildren.add(selectCityView)
-    scene.root.value = baseView
-    stage.setScene(scene)
-    stage.show()
+    val baseView: BaseView = BaseView(appTitle, appSubtitle)
+    citySearcherView = MVCCitySearcher(null, baseView).citySearcherView
+    startApplication(stage, baseView, citySearcherView)
 
   @Test
   def testTextField(robot: FxRobot): Unit =
     verifyThat(textFieldId, isVisible)
     verifyThat(textFieldId, isEnabled)
-    verifyThat(textFieldId, isFocused)
 
   @Test
   def testAutoCompletionPopup(robot: FxRobot): Unit =
     val char = "A"
+    robot.clickOn(textFieldId)
     robot.write(char)
     verifyThat(textFieldId, TextInputControlMatchers.hasText(char))
-    selectCityView.autoCompletionBinding.getAutoCompletionPopup.getSuggestions.forEach(city =>
+    citySearcherView.autoCompletionBinding.getAutoCompletionPopup.getSuggestions.forEach(city =>
       assertTrue(city.startsWith(char))
     )
 
@@ -72,6 +60,7 @@ class SelectCityViewTest:
   def testWrongCityError(robot: FxRobot): Unit =
     val wrongCity = "Wrong city"
     verifyThat(textFieldId, TextInputControlMatchers.hasText(""))
+    robot.clickOn(textFieldId)
     robot.write(wrongCity)
     robot.clickOn(nextButtonId)
     verifyThat(errorLabel, isVisible)
