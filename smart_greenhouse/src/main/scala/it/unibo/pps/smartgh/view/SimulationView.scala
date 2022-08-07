@@ -8,6 +8,7 @@ import javafx.geometry.Pos
 import javafx.scene.Parent
 import javafx.scene.layout.BorderPane
 import javafx.stage.Stage
+import it.unibo.pps.smartgh.mvc.EnvironmentMVC
 
 /** The view of the application. */
 trait SimulationView:

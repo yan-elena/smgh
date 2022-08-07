@@ -3,6 +3,9 @@ package it.unibo.pps.smartgh.model.plants
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
+import scala.language.postfixOps
+
+/** This class contains tests to verify that the [[Plant]] works correctly. */
 class PlantTest extends AnyFunSuite with Matchers:
   val plant: Plant = Plant("lemon", "citrus limon")
 

@@ -5,7 +5,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.Eventually
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.time.{Seconds, Span}
+import org.scalatest.time.{Seconds, Span, Milliseconds}
 
 import scala.concurrent.duration.*
 import scala.language.postfixOps
@@ -15,42 +15,55 @@ class TimerTest extends AnyFunSuite with Matchers with BeforeAndAfter with Event
 
   private val duration = 5 seconds
   private var timer: Timer = _
+  private var timerValue: FiniteDuration = _
+  private var finish: Boolean = _
 
   before {
+    timerValue = 0.seconds
+    finish = false
     timer = Timer(duration)
+    timer.start(this.finish = true)
+    timer.addCallback(timerValue = _, 1)
   }
 
-  test("The timer should not start before calling start") {
-    timer.value shouldEqual 0.seconds
+  after {
+    timer.stop()
   }
 
   test("The timer should start when started") {
-    timer.start(println(_))
     eventually(timeout(Span(duration.toSeconds, Seconds))) {
-      timer.value should be > 0.seconds
+      timerValue should be > 0.seconds
     }
   }
 
   test("When the timer is finished it should have the value at the setted duration") {
-    timer.start(println(_))
     eventually(timeout(Span(duration.toSeconds + 2, Seconds))) {
-      timer.value shouldEqual duration
+      finish shouldEqual true
     }
+    timerValue shouldEqual duration
   }
 
   test("When the timer stops, its value should stops") {
-    timer.start(println(_))
-    Thread.sleep(2000)
+    Thread.sleep(duration.toMillis / 2)
     timer.stop()
-    val value = timer.value
-    Thread.sleep(2000)
-    timer.value shouldEqual value
+    val stoppedValue = timerValue
+    Thread.sleep(duration.toMillis / 2)
+    timerValue shouldEqual stoppedValue
   }
 
   test("When the speed is increased, the timer should finish earlier") {
-    timer.start(println(_))
     timer.changeTickPeriod(200 milliseconds)
     eventually(timeout(Span(duration.toSeconds / 2, Seconds))) {
-      timer.value shouldEqual duration
+      finish shouldEqual true
+    }
+    timerValue shouldEqual duration
+  }
+
+  test("When change period, the timer should continue its value") {
+    val valueBefore = timerValue
+    val period: FiniteDuration = 200.milliseconds
+    timer.changeTickPeriod(period)
+    eventually(timeout(Span(period.toMillis * 2, Milliseconds))) {
+      timerValue shouldEqual (valueBefore + 1.seconds)
     }
   }

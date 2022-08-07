@@ -9,6 +9,7 @@ import javafx.scene.control.{Button, Label, TextField}
 import javafx.scene.layout.BorderPane
 import org.controlsfx.control.textfield.{AutoCompletionBinding, TextFields}
 import javafx.application.Platform
+import it.unibo.pps.smartgh.mvc.PlantSelectorMVC
 
 import java.util
 import scala.jdk.javaapi.CollectionConverters.*
@@ -72,7 +73,7 @@ object SelectCityViewModule:
         if selectedCity.isBlank then setErrorText("Please select a city")
         else if controller.containCity(selectedCity) then
           controller.saveCity(selectedCity)
-          simulationView.changeView(SelectPlantView(simulationView, baseView))
+          simulationView.changeView(PlantSelectorMVC(simulationView, baseView).selectPlantView)
         else setErrorText("The selected city is not valid")
       }
 
