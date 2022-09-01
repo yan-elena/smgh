@@ -4,7 +4,7 @@ on:
   push:
     
 jobs:
-  Generate:
+  Report:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -14,14 +14,16 @@ jobs:
         id: files_list
         run: |
           cd docs
-          echo "::set-output name=files::$(printf 'report/%s ' *.md)"
+          echo "::set-output name=files::$(printf 'docs/%s ' *.md)"
       - name: Convert with pandoc
         uses: docker://pandoc/latex:2.9
         with:
           args: >-
             -o report.pdf
             -F pandoc-citeproc
-            --resource-path=report
+            -N
+            --metadata-file=report/metadata.yml
+            --resource-path=docs
             ${{ steps.files_list.outputs.files }}
       - name: Upload
         uses: actions/upload-artifact@master
