@@ -1,0 +1,22 @@
+name: ReportPDF
+
+on:
+  push:
+    
+jobs:
+  Report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: doc
+      - name: Convert with pandoc
+        uses: docker://pandoc/core:2.9
+        run:|
+          cd docs
+          pandoc *.md -o result.pdf
+      - name: Upload
+        uses: actions/upload-artifact@master
+        with:
+          name: report
+          path: report.pdf
