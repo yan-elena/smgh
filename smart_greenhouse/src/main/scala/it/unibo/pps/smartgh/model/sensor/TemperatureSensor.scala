@@ -1,45 +1,63 @@
 package it.unibo.pps.smartgh.model.sensor
 
-import it.unibo.pps.smartgh.model.sensor.areaComponentsState.AreaComponentsState.AreaComponentsStateImpl
-import it.unibo.pps.smartgh.model.sensor.factoryFunctions.FactoryFunctionsTemperatureSensor
+import it.unibo.pps.smartgh.model.area.AreaComponentsState.AreaComponentsStateImpl
+import it.unibo.pps.smartgh.model.area.{AreaComponentsState, AreaGatesState}
+import it.unibo.pps.smartgh.model.sensor.factoryFunctions.FactoryFunctionsTemperature
 import it.unibo.pps.smartgh.model.time.Timer
+import monix.eval.Task
 import monix.execution.Ack
-import monix.reactive.Observable
-
-import scala.util.Random
+import monix.execution.Ack.Continue
 import monix.execution.Scheduler.Implicits.global
-import monix.reactive.subjects.ConcurrentSubject
-import monix.reactive.MulticastStrategy.Behavior
-import monix.reactive.MulticastStrategy
-import it.unibo.pps.smartgh.model.sensor.areaComponentsState.{AreaGatesState, AreaShieldState}
-import it.unibo.pps.smartgh.model.sensor.areaComponentsState.AreaComponentsState.*
-import monix.execution.Ack.{Continue, Stop}
 
 import scala.concurrent.Future
+import scala.util.Random
 
+/** Object that enclose the implementation of the temperature sensor. */
 object TemperatureSensor:
 
-  def apply(areaComponentsStateImpl: AreaComponentsStateImpl, timer: Timer): TemperatureSensorImpl =
-    TemperatureSensorImpl(areaComponentsStateImpl, timer)
+  private val TimeMustPass: Int = 5
 
-  class TemperatureSensorImpl(areaComponentsState: AreaComponentsStateImpl, timer: Timer)
-      extends AbstractSensorWithTimer(areaComponentsState, timer):
-    private val timeMustPass: Int = 300
-    private val randomValue = Random(10)
-    private val minPercentage = 0.1
-    private val maxPercentage = 0.10
-    private val areaFactor = 0.90
-    private val environmentFactor = 0.10
+  /** Apply method for the [[TemperatureSensorImpl]]
+    * @param areaComponentsStateImpl
+    *   the actual state of the are components.
+    * @param addTimerCallback
+    *   the callback for the timer.
+    * @return
+    *   the sensor responsible for detecting the temperature of the area.
+    */
+  def apply(
+      areaComponentsStateImpl: AreaComponentsStateImpl,
+      addTimerCallback: (f: String => Unit) => Unit
+  ): TemperatureSensorImpl =
+    TemperatureSensorImpl(areaComponentsStateImpl, addTimerCallback)
+
+  /** Class that represents the temperature sensor of an area of the greenhouse.
+    * @param areaComponentsState
+    *   represents the current state of the components of the area.
+    * @param addTimerCallback
+    *   the callback for the timer.
+    */
+  class TemperatureSensorImpl(
+      areaComponentsState: AreaComponentsStateImpl,
+      addTimerCallback: (f: String => Unit) => Unit
+  ) extends AbstractSensorWithTimer(areaComponentsState, addTimerCallback):
 
     currentValue = areaComponentsState.temperature
-
-    override def registerTimerCallback(): Unit =
-      timer.addCallback(onNextTimerEvent(), timeMustPass)
+    registerTimerCallback(_.takeRight(2).toInt % TimeMustPass == 0)
 
     override def computeNextSensorValue(): Unit =
-      areaComponentsState.gatesState match
-        case AreaGatesState.Open if currentValue != currentEnvironmentValue =>
-          currentValue = FactoryFunctionsTemperatureSensor.computeTemperature(currentValue, currentEnvironmentValue)
-        case AreaGatesState.Close if currentValue != areaComponentsState.temperature =>
-          FactoryFunctionsTemperatureSensor.computeTemperature(currentValue, areaComponentsState.temperature)
-        case _ =>
+      Task {
+        currentValue = areaComponentsState.gatesState match
+          case AreaGatesState.Open if currentValue != currentEnvironmentValue =>
+            FactoryFunctionsTemperature.updateTemperatureApproachingTemperatureToReach(
+              currentValue,
+              currentEnvironmentValue
+            )
+          case AreaGatesState.Close if currentValue != areaComponentsState.temperature =>
+            FactoryFunctionsTemperature.updateTemperatureApproachingTemperatureToReach(
+              currentValue,
+              areaComponentsState.temperature
+            )
+          case _ => currentValue
+        subject.onNext(currentValue)
+      }.executeAsync.runToFuture

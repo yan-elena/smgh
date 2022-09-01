@@ -1,12 +1,13 @@
 package it.unibo.pps.smartgh.view.component
 
-import it.unibo.pps.smartgh.mvc.SelectCityMVC
-import it.unibo.pps.smartgh.view.SimulationView
+import it.unibo.pps.smartgh.mvc.SimulationMVC.SimulationMVCImpl
+import it.unibo.pps.smartgh.mvc.component.SelectCityMVC
+import it.unibo.pps.smartgh.view.SimulationViewModule.SimulationView
 import it.unibo.pps.smartgh.view.component.ViewComponent.AbstractViewComponent
+import javafx.application.Platform
 import javafx.fxml.FXML
-import javafx.geometry.Pos
-import javafx.scene.layout.BorderPane
 import javafx.scene.control.{Button, Label}
+import javafx.scene.layout.BorderPane
 
 /** A trait that represents the view of the last scene of the simulation. */
 trait FinishSimulationView extends ViewComponent[BorderPane]
@@ -15,34 +16,28 @@ trait FinishSimulationView extends ViewComponent[BorderPane]
 object FinishSimulationView:
 
   /** Create a new [[FinishSimulationView]] component.
-    * @param simulationView
-    *   the [[SimulationView]] of the application.
-    * @param baseView
-    *   the [[BaseView]] component.
+    *
+    * @param simulationMVC
+    *   the root MVC of the application.
     * @return
     *   a new instance of [[FinishSimulationView]].
     */
-  def apply(simulationView: SimulationView, baseView: BaseView): FinishSimulationView =
-    FinishSimulationViewImpl(simulationView, baseView)
+  def apply(simulationMVC: SimulationMVCImpl): FinishSimulationView =
+    FinishSimulationViewImpl(simulationMVC)
 
-  private class FinishSimulationViewImpl(private val simulationView: SimulationView, private val baseView: BaseView)
+  private class FinishSimulationViewImpl(simulationMVC: SimulationMVCImpl)
       extends AbstractViewComponent[BorderPane]("finish_simulation.fxml")
       with FinishSimulationView:
 
-    override val component: BorderPane = loader.load[BorderPane]
-
+    //noinspection VarCouldBeVal
     @FXML
-    var simulationEndedLabel: Label = _
+    protected var simulationEndedLabel: Label = _
 
-    val startNewSimulationButton: Button = baseView.changeSceneButton
-
-    simulationEndedLabel.setText("Simulation ended!")
-//    startNewSimulationButton.setStyle("-fx-background-color: #33cc33")
-//    startNewSimulationButton.setOnMouseEntered(_ => startNewSimulationButton.setStyle("-fx-background-color: #5cd65c"))
-//    startNewSimulationButton.setOnMouseExited(_ => startNewSimulationButton.setStyle("-fx-background-color: #33cc33"))
-
-    baseView.changeSceneButton.setText("Start a new simulation")
-    baseView.changeSceneButton.setOnMouseClicked { _ =>
-      //todo
-      simulationView.changeView(SelectCityMVC(simulationView, baseView).selectCityView)
-    }
+    Platform.runLater(() => simulationEndedLabel.setText("Simulation ended!"))
+    simulationMVC.simulationView.changeSceneButtonBehaviour(
+      "Start a new simulation",
+      _ => {
+        simulationMVC.simulationController.resetSimulation()
+        simulationMVC.simulationView.changeView(SelectCityMVC(simulationMVC).selectCityView)
+      }
+    )

@@ -1,25 +1,25 @@
 package it.unibo.pps.smartgh.view.component
 
-import it.unibo.pps.smartgh.mvc.PlantSelectorMVC.PlantSelectorMVCImpl
-import it.unibo.pps.smartgh.view.SimulationView.{appSubtitle, appTitle}
+import it.unibo.pps.smartgh.mvc.SimulationMVC
+import it.unibo.pps.smartgh.mvc.component.PlantSelectorMVC.PlantSelectorMVCImpl
 import it.unibo.pps.smartgh.view.component
-import javafx.scene.control.{Button, CheckBox, Label}
-import javafx.scene.layout.{BorderPane, VBox}
+import javafx.scene.control.{Button, Label}
+import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.{Assertions, BeforeAll, BeforeEach, Test, TestInstance}
-import org.testfx.api.{FxRobot, FxToolkit}
-import org.testfx.util.WaitForAsyncUtils
-import org.testfx.assertions.api.Assertions as FXAssertions
-import org.testfx.framework.junit5.{ApplicationExtension, ApplicationTest, Start}
+import org.junit.jupiter.api.{Assertions, Test, TestInstance}
+import org.scalatest.concurrent.Eventually.eventually
+import org.scalatest.concurrent.Futures.timeout
+import org.scalatest.time.{Milliseconds, Span}
 import org.testfx.api.FxAssert.verifyThat
-import org.hamcrest.MatcherAssert.assertThat
-import org.testfx.matcher.base.NodeMatchers.{hasChildren, isVisible}
+import org.testfx.api.FxRobot
+import org.testfx.framework.junit5.{ApplicationExtension, Start}
+import org.testfx.matcher.base.NodeMatchers.isVisible
 import org.testfx.matcher.control.LabeledMatchers
 import org.testfx.matcher.control.LabeledMatchers.hasText
 import scalafx.scene.Scene
-
+/** This class contains the tests to verify that the [[SelectPlantViewModule]] work correctly. */
 @TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(Array(classOf[ApplicationExtension]))
 class SelectPlantViewModuleTest extends AbstractViewTest:
@@ -36,9 +36,9 @@ class SelectPlantViewModuleTest extends AbstractViewTest:
 
   @Start
   private def start(stage: Stage): Unit =
-    val baseView: BaseView = BaseView(appTitle, appSubtitle)
-    mvc = PlantSelectorMVCImpl(null, baseView)
-    startApplication(stage, baseView, mvc.selectPlantView)
+    val simulationMVC = SimulationMVC(stage)
+    mvc = PlantSelectorMVCImpl(simulationMVC)
+    simulationMVC.simulationView.start(mvc.selectPlantView)
 
   @Test def testLabelsSelectPlantAndPlantSelected(robot: FxRobot): Unit =
     val selectYourPlantsText = "Select your plants:"
@@ -74,7 +74,7 @@ class SelectPlantViewModuleTest extends AbstractViewTest:
         .lookup(selectablePlantsBoxId)
         .queryAs(classOf[VBox])
         .getChildren
-        .size == mvc.plantSelectorModel.getAllAvailablePlants().length
+        .size == mvc.plantSelectorModel.getAllAvailablePlants.length
     )
     assert(robot.lookup(selectedPlantBoxId).queryAs(classOf[VBox]).getChildren.size == initialSelectedPlant)
 
@@ -86,9 +86,12 @@ class SelectPlantViewModuleTest extends AbstractViewTest:
     robot.clickOn(checkBox)
 
     //then:
-    assert(robot.lookup(selectedPlantBoxId).queryAs(classOf[VBox]).getChildren.size == selectedPlantNumber)
-    verifyThat(numberPlantsSelectedId, hasText(selectedPlantNumber.toString))
+    eventually(timeout(Span(8000, Milliseconds))) {
+      assert(robot.lookup(selectedPlantBoxId).queryAs(classOf[VBox]).getChildren.size == selectedPlantNumber)
+      verifyThat(numberPlantsSelectedId, hasText(selectedPlantNumber.toString))
+    }
 
+  //noinspection DfaConstantConditions
   @Test def testPlantDeselection(robot: FxRobot): Unit =
     val plantIndex = 0
     val selectedPlantNumber = 0

@@ -1,17 +1,16 @@
 package it.unibo.pps.smartgh.view.component
 
-import it.unibo.pps.smartgh.controller.PlantSelectorControllerModule
-import it.unibo.pps.smartgh.view.SimulationView
-import it.unibo.pps.smartgh.view.component.ViewComponent.AbstractViewComponent
-import javafx.event.{ActionEvent, EventHandler}
-import javafx.fxml.FXML
-import javafx.scene.layout.{HBox, VBox}
-import javafx.scene.control.{CheckBox, Label}
-import javafx.scene.layout.BorderPane
 import cats.syntax.eq.catsSyntaxEq
-import it.unibo.pps.smartgh.model.plants.{PlantSelectorModelModule, UploadPlants}
+import it.unibo.pps.smartgh.controller.component.PlantSelectorControllerModule
+import it.unibo.pps.smartgh.model.plants.Plant
+import it.unibo.pps.smartgh.mvc.SimulationMVC
+import it.unibo.pps.smartgh.view.component.ViewComponent.AbstractViewComponent
 import javafx.application.Platform
-import it.unibo.pps.smartgh.mvc.EnvironmentMVC
+import javafx.event.EventHandler
+import javafx.fxml.FXML
+import javafx.scene.control.{CheckBox, Label}
+import javafx.scene.layout.{BorderPane, VBox}
+import org.scalactic.TripleEquals.convertToEqualizer
 
 import scala.jdk.javaapi.CollectionConverters.asJavaCollection
 import scala.language.postfixOps
@@ -20,7 +19,7 @@ import scala.language.postfixOps
 object SelectPlantViewModule:
 
   /** A trait that represents the select plants scene of the application. */
-  trait SelectPlantView extends ViewComponent[BorderPane]:
+  trait SelectPlantView extends ViewComponent[BorderPane] with ContiguousSceneView[VBox]:
 
     /** Method that shows the plant that can be selected.
       * @param selectablePlantList
@@ -29,13 +28,10 @@ object SelectPlantViewModule:
     def showSelectablePlants(selectablePlantList: List[String]): Unit
 
     /** * Method to update the view of the selected plants.
-      * @param selectedPlant
-      *   the plant that has been selected by the user.
+      * @param selectedPlantList
+      *   the [[List]] of the plant that has been selected by the user.
       */
     def updateSelectedPlant(selectedPlantList: List[String]): Unit
-
-    /** Method that asks the view to move to the next Scene. */
-    def moveToTheNextScene(): Unit
 
     /** Method that requires to the view to show an error message.
       * @param message
@@ -45,65 +41,69 @@ object SelectPlantViewModule:
 
   /** Trait that represents the provider of the view for the plant selection. */
   trait Provider:
+    /** Select plant view. */
     val selectPlantView: SelectPlantView
-  type Requirments = PlantSelectorControllerModule.Provider
+
+  /** Requirements for the [[SelectPlantView]] */
+  type Requirements = PlantSelectorControllerModule.Provider with SimulationMVC.Provider
 
   /** Trait that represents the components of the view for the plant selection. */
   trait Component:
-    context: Requirments =>
+    context: Requirements =>
 
-    /** Class that contains the [[SelectPlantView]] implementation.
-      * @param simulationView
-      *   the root view of the application.
-      * @param baseView
-      *   the view in which the [[SelectPlantView]] is enclosed.
-      */
-    class SelectPlantViewImpl(private val simulationView: SimulationView, private val baseView: BaseView)
-        extends AbstractViewComponent[BorderPane]("select_plants.fxml")
-        with SelectPlantView:
+    /** Class that contains the [[SelectPlantView]] implementation. */
+    class SelectPlantViewImpl() extends AbstractViewComponent[BorderPane]("select_plants.fxml") with SelectPlantView:
 
       given Conversion[Int, String] = _.toString
 
-      override val component: BorderPane = loader.load[BorderPane]
       private val selectYourPlantText = "Select your plants:"
       private val plantsSelectedText = "Plants selected:"
       private val countText = "Count: "
 
       @FXML
-      var selectablePlantsBox: VBox = _
+      protected var selectablePlantsBox: VBox = _
 
+      //noinspection VarCouldBeVal
       @FXML
-      var selectedPlantsBox: VBox = _
+      protected var selectedPlantsBox: VBox = _
 
+      //noinspection VarCouldBeVal
       @FXML
-      var selectYourPlantLabel: Label = _
+      protected var selectYourPlantLabel: Label = _
 
+      //noinspection VarCouldBeVal
       @FXML
-      var plantsSelectedLabel: Label = _
+      protected var plantsSelectedLabel: Label = _
 
+      //noinspection VarCouldBeVal
       @FXML
-      var countLabel: Label = _
+      protected var countLabel: Label = _
 
+      //noinspection VarCouldBeVal
       @FXML
-      var numberPlantsSelectedLabel: Label = _
+      protected var numberPlantsSelectedLabel: Label = _
 
+      //noinspection VarCouldBeVal
       @FXML
-      var errorLabel: Label = _
+      protected var errorLabel: Label = _
 
       selectYourPlantLabel.setText(selectYourPlantText)
       plantsSelectedLabel.setText(plantsSelectedText)
       countLabel.setText(countText)
       numberPlantsSelectedLabel.setText(0)
 
-      baseView.changeSceneButton.setText("Start simulation")
-      baseView.changeSceneButton.setOnMouseClicked { _ =>
-        context.plantSelectorController.notifyStartSimulationClicked()
-      }
+      simulationMVC.simulationView.changeSceneButtonBehaviour(
+        "Start simulation",
+        _ => plantSelectorController.beforeNextScene()
+      )
 
       override def showSelectablePlants(selectablePlantList: List[String]): Unit =
-        val selectablePlantsCheckBoxList = selectablePlantList.map(new CheckBox(_))
-        addEventHandlerToCheckBoxes(selectablePlantsCheckBoxList)
-        selectablePlantsBox.getChildren.addAll(asJavaCollection(selectablePlantsCheckBoxList))
+        Platform.runLater(() =>
+          //noinspection ScalaUnnecessaryParentheses
+          val selectablePlantsCheckBoxList = selectablePlantList.map(new CheckBox(_))
+          addEventHandlerToCheckBoxes(selectablePlantsCheckBoxList)
+          selectablePlantsBox.getChildren.addAll(asJavaCollection(selectablePlantsCheckBoxList))
+        )
 
       override def updateSelectedPlant(selectedPlants: List[String]): Unit =
         Platform.runLater(() =>
@@ -115,18 +115,21 @@ object SelectPlantViewModule:
         checkBoxList.foreach(_.setOnAction { e =>
           Platform.runLater(() =>
             val checkBox = e.getSource.asInstanceOf[CheckBox]
-            if checkBox.isSelected then context.plantSelectorController.notifySelectedPlant(checkBox.getText)
-            else context.plantSelectorController.notifyDeselectedPlant(checkBox.getText)
+            if errorLabel.getText !== "" then errorLabel.setText("")
+            if checkBox.isSelected then plantSelectorController.notifySelectedPlant(checkBox.getText)
+            else plantSelectorController.notifyDeselectedPlant(checkBox.getText)
           )
         })
 
-      override def moveToTheNextScene(): Unit =
-        val environmentMVC = EnvironmentMVC(simulationView, baseView)
-        simulationView.changeView(environmentMVC.environmentView)
+      override def moveToNextScene(nextView: ViewComponent[VBox]): Unit =
+        Platform.runLater(() => simulationMVC.simulationView.changeView(nextView))
+
+      override def setNewScene(): Unit =
+        plantSelectorController.beforeNextScene()
 
       override def showErrorMessage(message: String): Unit =
-        errorLabel.setText(message)
+        Platform.runLater(() => errorLabel.setText(message))
 
   /** Trait that encloses the view for the plant selection. */
   trait Interface extends Provider with Component:
-    self: Requirments =>
+    self: Requirements =>

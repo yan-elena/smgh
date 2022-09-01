@@ -1,26 +1,23 @@
 package it.unibo.pps.smartgh.model.sensor.factoryFunctions
 
-/** Object that represents a factory for the different functions that can be applied to calculate the new brightness
+/** Object that represents a factory for the different functions that can be applied to calculate the new soil humidity
   * value of the [[SoilHumiditySensor]].
   */
 object FactoryFunctionsSoilHumidity:
 
-  private val valueRange = (0.0, 100.0)
-  private val evaporationFactor = 100
-  private val rainFactor = 50.0 / 100
-  private val wateringFactor = 5.0 / 100
-  private val movingSoilFactor = 10.0 / 100
+  private val EvaporationFactor = 0.01
+  private val RainFactor = 0.50
+  private val WateringFactor = 0.05
+  private val MovingSoilFactor = 0.10
 
-  val updateValueWithEvaporation: Double => Double = currentAreaValue =>
-    (currentAreaValue - currentAreaValue / evaporationFactor).max(valueRange._1)
+  /** Update the current soil moisture value with the evaporation factor. */
+  val updateEvaporationValue: Double => Double = _ - EvaporationFactor
 
-  val updateValueWithAreaGatesOpen: (Double, Double) => Double = (currentAreaValue, precipitation) =>
-    (currentAreaValue - currentAreaValue / evaporationFactor + precipitation * rainFactor)
-      .max(valueRange._1)
-      .min(valueRange._2)
+  /** Updates the current soil moisture value according to the precipitation value when gates are open. */
+  val updateGatesOpenValue: (Double, Double) => Double = _ + _ * RainFactor
 
-  val updateValueWithWatering: Double => Double = currentAreaValue =>
-    (currentAreaValue + currentAreaValue * wateringFactor).min(valueRange._2)
+  /** Update the current soil moisture value with watering. */
+  val updateWateringValue: Double => Double = _ + WateringFactor
 
-  val updateValueWithMovingSoil: Double => Double = currentAreaValue =>
-    (currentAreaValue - currentAreaValue * movingSoilFactor).max(valueRange._1)
+  /** Update the current soil moisture value when moving soil. */
+  val updateMovingSoilValue: Double => Double = _ - MovingSoilFactor

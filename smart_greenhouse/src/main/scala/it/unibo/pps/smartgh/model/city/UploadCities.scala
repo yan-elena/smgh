@@ -5,22 +5,24 @@ import java.nio.file.{Files, Path}
 import scala.io.{BufferedSource, Codec, Source}
 import scala.language.postfixOps
 import scala.util.Using
+
 /** This trait exposes methods for managing the uploading of cities into a prolog file. */
 trait UploadCities:
 
   /** Function that get the file.
-    *
     * @throws java.io.FileNotFoundException
+    *   file not found
     * @param fileName
     *   name of file
     * @return
-    *   BufferdSource
+    *   BufferedSource
     */
   def getBufferedSource(fileName: String): BufferedSource
 
   /** Function that get the number of lines of a file located in resources folder.
     *
     * @throws java.io.FileNotFoundException
+    *   file not found
     * @param fileName
     *   name of file
     * @return
@@ -31,6 +33,7 @@ trait UploadCities:
   /** Function that get the number of lines of a file located in prolog folder.
     *
     * @throws java.io.FileNotFoundException
+    *   file not found
     * @param fileName
     *   name of file
     * @return
@@ -80,7 +83,7 @@ object UploadCities extends UploadCities:
     val printWriter = new PrintWriter(writer)
     try {
       Using(getBufferedSource(inputFile)) {
-        _.getLines() foreach (c => printWriter.println(s"citta(\"$c\")."))
+        _.getLines() foreach (l => printWriter.println(l.split(",").mkString("city(\'", "\', \'", "\').")))
       }
-      printWriter.println(s"ricerca_citta([H|T], X) :- citta(X), atom_chars(X, [H|T]).")
+      printWriter.println(s"search_city([H|T], X, Y, Z) :- city(X, Y, Z), atom_chars(X, [H|T]).")
     } finally printWriter.close()

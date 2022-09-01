@@ -1,20 +1,19 @@
 package it.unibo.pps.smartgh.view.component
 
-import it.unibo.pps.smartgh.view.SimulationView
+import it.unibo.pps.smartgh.mvc.SimulationMVC
+import it.unibo.pps.smartgh.mvc.SimulationMVC.SimulationMVCImpl
+import it.unibo.pps.smartgh.view.SimulationViewModule
 import javafx.scene.Parent
 import javafx.stage.Stage
-import org.junit.jupiter.api.{BeforeAll, TestInstance}
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.{BeforeAll, TestInstance}
 import org.testfx.framework.junit5.{ApplicationExtension, Start}
 import org.testfx.util.WaitForAsyncUtils
 import scalafx.scene.Scene
 
+/** Abstract class for testing the view. */
 abstract class AbstractViewTest:
-
-  protected var simulationView: SimulationView = _
-  protected val appTitle = "Smart Greenhouse"
-  protected val appSubtitle = "Simula la tua serra intelligente"
 
   @BeforeAll
   def setup(): Unit =
@@ -25,12 +24,3 @@ abstract class AbstractViewTest:
     System.setProperty("prism.text", "t2k")
     WaitForAsyncUtils.checkAllExceptions = false
     WaitForAsyncUtils.autoCheckException = false
-
-  def startApplication(stage: Stage, baseView: BaseView, viewComponent: ViewComponent[? <: Parent]): Unit =
-    val scene: Scene = Scene(stage.getWidth, stage.getHeight)
-    stage.setResizable(true)
-    stage.setMaximized(true)
-    baseView.component.setCenter(viewComponent)
-    scene.root.value = baseView
-    stage.setScene(scene)
-    stage.show()

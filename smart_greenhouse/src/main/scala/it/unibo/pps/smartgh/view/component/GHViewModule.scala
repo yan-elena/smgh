@@ -1,66 +1,67 @@
 package it.unibo.pps.smartgh.view.component
 
 import cats.syntax.eq.catsSyntaxEq
-import it.unibo.pps.smartgh.controller.GHControllerModule
+import it.unibo.pps.smartgh.controller.component.GHControllerModule
 import it.unibo.pps.smartgh.view.component.ViewComponent.AbstractViewComponent
 import javafx.application.Platform
 import javafx.fxml.FXML
-import javafx.scene.control.Label
-import javafx.scene.layout.{GridPane, StackPane, VBox}
-import scalafx.geometry.Pos
-import scalafx.scene.Cursor.Text
-import scalafx.scene.control.Button
-import scalafx.scene.paint.Color.*
+import javafx.scene.control.ScrollPane
+import javafx.scene.layout.GridPane
 import scalafx.scene.layout.Pane
-import scalafx.scene.shape.Rectangle
 
 import scala.language.postfixOps
 /** Implementation of the [[GHViewModule]]. */
 object GHViewModule:
   /** A trait that represents the green house division view of the application. */
-  trait GHDivisionView extends ViewComponent[VBox]:
+  trait GreenHouseView extends ViewComponent[ScrollPane]:
     /** Draws the greenhouse division according to the rows and cols.
-     * @param rows of the greenhouse grid
-     * @param cols of the greenhouse grid
-     * @param areas list of areas componing the greenhouse
-     * */
-    def paintDivision(rows: Int, cols: Int, areas: List[AreaViewModule.AreaView]): Unit
+      * @param areas
+      *   list of areas composing the greenhouse
+      */
+    def paintDivision(areas: List[AreaViewModule.AreaView]): Unit
 
-  /** A trait for defining the view instance.*/
+  /** A trait for defining the view instance. */
   trait Provider:
-    val ghDivisionView: GHDivisionView
+    /** Greenhouse division view. */
+    val ghDivisionView: GreenHouseView
 
+  /** Requirements for the [[GreenHouseView]]. */
   type Requirements = GHControllerModule.Provider
+
   /** A trait that represents the greenhouse division view component. */
   trait Component:
     context: Requirements =>
-    /** Implementation of the greenhouse division view.*/
-    class GreenHouseDivisionViewImpl()
-      extends AbstractViewComponent[VBox]("ghDivision.fxml")
-        with GHDivisionView:
-      private val env = GridPane()
-      override val component: VBox = loader.load[VBox]
+    /** Implementation of the greenhouse division view.
+      * @return
+      *   the implementation of the [[GreenHouseDivisionViewImpl]].
+      */
+    class GreenHouseDivisionViewImpl() extends AbstractViewComponent[ScrollPane]("ghDivision.fxml") with GreenHouseView:
+
+      //noinspection VarCouldBeVal
+      @FXML
+      protected var env: GridPane = _
 
       @FXML
-      var ghDivision: VBox = _
+      protected var scroll: ScrollPane = _
 
-      ghDivision.getChildren.add(env)
       env.setHgap(5)
       env.setVgap(5)
 
-      override def paintDivision(rows: Int, cols: Int, areas: List[AreaViewModule.AreaView]): Unit =
+      override def paintDivision(areas: List[AreaViewModule.AreaView]): Unit =
+        val cols = 5
         Platform.runLater(() =>
           env.getChildren.clear()
+          //noinspection VarCouldBeVal
           var count = 0
           for
+            r <- 0 until Math.ceil(areas.length / cols).toInt + (if areas.length % cols == 0 then 0 else 1)
             c <- 0 until cols
-            r <- 0 until rows
+            if count < areas.length
           do
-            val i = count
-            env.add(areas(i), c, r)
+            env.add(areas(count), c, r)
             count = count + 1
         )
 
-  /** Trait that combine provider and component for greenhouse division view.*/
+  /** Trait that combine provider and component for greenhouse division view. */
   trait Interface extends Provider with Component:
     self: Requirements =>

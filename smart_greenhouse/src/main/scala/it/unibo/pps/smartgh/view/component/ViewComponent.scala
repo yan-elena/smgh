@@ -21,8 +21,7 @@ trait ViewComponent[A <: Parent]:
 object ViewComponent:
 
   /** Convert the object to its wrapped component */
-  given toComponent[A <: Parent]: Conversion[ViewComponent[A], A] with
-    override def apply(component: ViewComponent[A]): A = component.component
+  given toComponent[A <: Parent]: Conversion[ViewComponent[A], A] = _.component
 
   /** An abstract class that can instantiated the FX components from FXML files.
     *
@@ -33,7 +32,10 @@ object ViewComponent:
     * @tparam A
     *   the type of the FX component to wrap
     */
-  abstract class AbstractViewComponent[A <: Parent](fxmlFileName: String) extends ViewComponent[A]:
-    protected val loader: FXMLLoader = FXMLLoader()
+  abstract class AbstractViewComponent[A <: Parent](private val fxmlFileName: String) extends ViewComponent[A]:
+    private val loader: FXMLLoader = FXMLLoader()
+
     loader.setController(this)
     loader.setLocation(getClass.getResource("/fxml/" + fxmlFileName))
+
+    override val component: A = loader.load[A]

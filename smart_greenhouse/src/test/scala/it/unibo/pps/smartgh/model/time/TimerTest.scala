@@ -1,11 +1,11 @@
 package it.unibo.pps.smartgh.model.time
 
 import it.unibo.pps.smartgh.model.time.Timer
-import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.Eventually
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.time.{Seconds, Span, Milliseconds}
+import org.scalatest.time.{Seconds, Span}
+import org.scalatest.BeforeAndAfter
 
 import scala.concurrent.duration.*
 import scala.language.postfixOps
@@ -19,11 +19,10 @@ class TimerTest extends AnyFunSuite with Matchers with BeforeAndAfter with Event
   private var finish: Boolean = _
 
   before {
-    timerValue = 0.seconds
+    timerValue = 1.seconds
     finish = false
     timer = Timer(duration)
-    timer.start(this.finish = true)
-    timer.addCallback(timerValue = _, 1)
+    timer.start(timerValue = _, this.finish = true)
   }
 
   after {
@@ -36,7 +35,7 @@ class TimerTest extends AnyFunSuite with Matchers with BeforeAndAfter with Event
     }
   }
 
-  test("When the timer is finished it should have the value at the setted duration") {
+  test("When the timer is finished it should have the value at the set duration") {
     eventually(timeout(Span(duration.toSeconds + 2, Seconds))) {
       finish shouldEqual true
     }
@@ -60,10 +59,10 @@ class TimerTest extends AnyFunSuite with Matchers with BeforeAndAfter with Event
   }
 
   test("When change period, the timer should continue its value") {
-    val valueBefore = timerValue
     val period: FiniteDuration = 200.milliseconds
+    val valueBefore = timerValue
     timer.changeTickPeriod(period)
-    eventually(timeout(Span(period.toMillis * 2, Milliseconds))) {
+    eventually(timeout(Span(duration.toSeconds, Seconds))) {
       timerValue shouldEqual (valueBefore + 1.seconds)
     }
   }
