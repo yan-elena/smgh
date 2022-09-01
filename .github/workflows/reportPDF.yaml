@@ -10,10 +10,15 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: doc
-      - run: cd docs
-      - uses: docker://pandoc/core:2.9
+      - name: Create file list
+        id: files_list
+        run: |
+          cd docs
+          echo "::set-output name=files::$(printf 'docs/%s ' *.md)"
+      - name: Exporting pdf
+        uses: docker://pandoc/core:2.9
         with:
-          args: "*.md -o result.pdf"
+          args: --output=report.pdf ${{ steps.files_list.outputs.files }}
       - name: Upload
         uses: actions/upload-artifact@master
         with:
