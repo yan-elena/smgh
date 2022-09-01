@@ -18,7 +18,7 @@ jobs:
       - name: Exporting pdf
         uses: docker://pandoc/core:2.9
         with:
-          args: --output=report.pdf ${{ steps.files_list.outputs.files }}
+          args: ${{ steps.files_list.outputs.files }} -o result.pdf
       - name: Upload
         uses: actions/upload-artifact@master
         with:
