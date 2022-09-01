@@ -1,0 +1,50 @@
+# Smart Greenhouse Simulator
+
+## Autori
+
+[Veronika Folin](mailto:veronika.folin@studio.unibo.it),
+[Maria Mengozzi](mailto:maria.mengozzi3@studio.unibo.it),
+[Anna Vitali](mailto:anna.vitali4@studio.unibo.it),
+[Elena Yan](mailto:elena.yan@studio.unibo.it)
+
+## Indice
+- [Introduzione](#introduzione)
+- [1. Processo di sviluppo](#1-processo-di-sviluppo)
+  - [1.1 Meetings](#11-meetings)
+  - [1.2 Divisione dei tasks](#12-divisione-dei-tasks)
+  - [1.3 Strumenti utilizzati](#13-strumenti-utilizzati)
+- [2. Requisiti](#2-requisiti)
+  -  [2.1 Requisiti di business](#21-requisiti-di-business)
+  -  [2.2 Requisiti utente](#22-requisiti-utente)
+  -  [2.3 Requisiti funzionali](#23-requisiti-funzionali)
+  -  [2.4 Requisiti non funzionali](#24-requisiti-non-funzionali)
+  -  [2.5 Requisiti implementativi](#25-requisiti-implementativi)
+- [3. Design Architetturale](#3-design-architetturale)
+  - [3.1 Architettura complessiva](#31-architettura-complessiva)
+  - [3.2 Pattern architetturali utilizzati](#32-pattern-architetturali-utilizzati)
+- [4. Design dettagliato](#4-design-dettagliato)
+  - [4.1 View e Controller: elementi comuni](#41-view-e-controller-elementi-comuni)
+  - [4.2 Gestione della simulazione](#42-gestione-della-simulazione)
+  - [4.3 Impostazione dei parametri della simulazione](#43-impostazione-dei-parametri-della-simulazione)
+  - [4.4 Caricamento dei dati delle piante](#44-caricamento-dei-dati-delle-piante)
+  - [4.5 Avvio Simulazione](#45-avvio-simulazione)
+  - [4.6 Serra](#46-serra)
+  - [4.7 Visualizzazione del dettaglio di un'area](#47-visualizzazione-del-dettaglio-di-unarea)
+  - [4.8 Sensori](#48-sensori)
+  - [4.9 Fine Simulazione](#49-fine-simulazione)
+  - [4.10 Pattern utilizzati](#410-pattern-utilizzati)
+  - [4.11 Organizzazione del codice](#411-organizzazione-del-codice)
+- [5. Implementazione](#5-implementazione)
+  - [5.1 Utilizzo del paradigma funzionale](#51-utilizzo-del-paradigma-funzionale)
+  - [5.2 Utilizzo del paradigma logico](#52-utilizzo-del-paradigma-logico)
+  - [5.3 Programmazione reattiva ed asincrona](#53-programmazione-reattiva-e-asincrona)
+  - [5.4 Richieste dei dati](#54-richieste-dei-dati)
+  - [5.5 Utilizzo di ScalaFX e JavaFX](#55-utilizzo-di-scalafx-e-javafx)
+  - [5.6 Testing](#56-testing)
+  - [5.7 Suddivisione del lavoro](#57-suddivisione-del-lavoro)
+- [6. Retrospettiva](#6-retrospettiva)
+  - [6.1 Avviamento](#61-avviamento)
+  - [6.2 Sprint](#62-sprint)
+  - [6.3 Commenti finali](#63-commenti-finali)
+- [7. Conclusioni](#7-conclusioni)
+- [Guida utente](#guida-utente)
