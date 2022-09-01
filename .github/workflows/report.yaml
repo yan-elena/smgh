@@ -22,7 +22,7 @@ jobs:
             -o report.pdf
             -F pandoc-citeproc
             -N
-            --metadata-file=report/metadata.yml
+            --metadata-file=docs/metadata.yml
             --resource-path=docs
             ${{ steps.files_list.outputs.files }}
       - name: Upload
