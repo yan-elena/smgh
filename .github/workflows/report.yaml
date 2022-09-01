@@ -21,7 +21,6 @@ jobs:
           args: >-
             -o report.pdf
             -F pandoc-citeproc
-            -N
             --metadata-file=docs/metadata.yml
             --resource-path=docs
             ${{ steps.files_list.outputs.files }}
