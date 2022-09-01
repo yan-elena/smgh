@@ -11,11 +11,9 @@ jobs:
         with:
           ref: doc
       - name: Convert with pandoc
-      - run:
-          cd docs
-          pandoc *.md -o result.pdf
-      - uses: docker://pandoc/core:2.9
-
+        uses: docker://pandoc/core:2.9
+        with:
+          args: "pandoc docs/*.md -o result.pdf"
       - name: Upload
         uses: actions/upload-artifact@master
         with:
