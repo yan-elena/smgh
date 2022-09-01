@@ -14,6 +14,7 @@ jobs:
         id: files_list
         run: |
           cd docs
+          chmod 777 *.md
           echo "::set-output name=files::$(printf 'docs/%s ' *.md)"
       - name: Exporting pdf
         uses: docker://pandoc/core:2.9
