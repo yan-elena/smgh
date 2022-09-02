@@ -49,15 +49,15 @@ object AreaLuminosityViewModule:
 
       //noinspection VarCouldBeVal
       @FXML
-      var upShieldingBtn: ToggleButton = _
+      protected var upShieldingBtn: ToggleButton = _
 
       //noinspection VarCouldBeVal
       @FXML
-      var downShieldingBtn: ToggleButton = _
+      protected var downShieldingBtn: ToggleButton = _
 
       //noinspection VarCouldBeVal
       @FXML
-      var lampBrightnessSlider: Slider = _
+      protected var lampBrightnessSlider: Slider = _
 
       lampBrightnessSlider.setValue(areaLuminosityController.getLampValue / LampFactor)
       initShieldingBtn(areaLuminosityController.isShielded)
@@ -76,7 +76,9 @@ object AreaLuminosityViewModule:
         areaLuminosityController.updLampValue(lampBrightnessSlider.getValue * LampFactor)
       )
 
-      lampBrightnessSlider.setLabelFormatter(sfxStringConverter2jfx(StringConverter(_.dropRight(1).toDouble, _ + "k")))
+      lampBrightnessSlider.setLabelFormatter(
+        sfxStringConverter2jfx(StringConverter(_.dropRight(1).toDouble, _.toString + "k"))
+      )
 
       override def setUpActions(isGatesOpen: Boolean): Unit =
         if isGatesOpen then
