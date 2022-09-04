@@ -854,7 +854,7 @@ Per la realizzazione di questo progetto sono stati adoperati i pattern creaziona
 
 Il _pattern Factory_ è un pattern creazionale che ci dà la possibilità di creare degli oggetti senza dover specificare la loro classe e ci consente di cambiare in modo abbastanza agevole l'oggetto creato. 
 
-Le _factories_, come dice il nome, rappresentano delle vere e proprie "fabbriche di oggetti" che possiamo utilizzare per istanziare gli oggetti di cui abbiamo bisogno e con determinate caratteristiche.
+Le _factories_, come dice il nome, rappresentano delle vere e proprie "fabbriche di oggetti" che possiamo utilizzare per istanziare gli oggetti di cui abbiamo bisogno e con determinate caratteristiche. In generale questo pattern è stato utilizzato tramite i _companion object_ associati alle classi, i quali danno la possibilità di istanziare la classe corrispondente mantenendo privata la sua implementazione.
 
 All'interno del progetto si è fatto utilizzo, in particolare, del pattern _StaticFactory_, per produrre le funzioni necessarie a calcolare l'aggiornamento dei parametri rilevati dai sensori. 
 
