@@ -2,7 +2,7 @@
 - [Introduzione](/00_introduction.html#introduzione)
 - [1. Processo di sviluppo](/01_development_process.html#1-processo-di-sviluppo)
   - [1.1 Meetings](/01_development_process.html#11-meetings)
-  - [1.2 Divisione dei tasks](/01_development_process.html(#12-divisione-dei-tasks)
+  - [1.2 Divisione dei tasks](/01_development_process.html#12-divisione-dei-tasks)
   - [1.3 Strumenti utilizzati](/01_development_process.html#13-strumenti-utilizzati)
 - [2. Requisiti](/02_requirements.html#2-requisiti)
   -  [2.1 Requisiti di business](/02_requirements.html#21-requisiti-di-business)
